@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "pharmadomi",
+  "private_key_id": "418327c380796f75b424d7831582f2f3dfb6d6de",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCqF5zuBmraT/X1\nkGcmbnP2PjvmcViDIVegn+D74c7gC/7A+nTTh6/iXBxIzAXXH03t8Oi9Sstp1cSm\nzwAR27rk+jtqczOON/CjL4NRnzCpIgbxCSYC4qfGEi/poO8kpL/Q9EKD8dBXMGWE\nhxrO0mifEDdzR7l4hWd2zcjOAj2H3miQJD2WPMiktEsiNMCO+uXV5fdh6ySXCcyA\no18nIC5dNS46euEY1RSCuX/tBQvzzmnR7dSx+BDRC+PFQKM1HormrksmstsHDyxI\nXwiqRZGjlyyUwjKEOOMA1j8a4XeDUitnFYBbVt89maEaD/ZL4IgsXwMZKZfPPacS\nfUOW2ga/AgMBAAECggEACq4nLeMFRXifTx4UIJumU9ceRXpUh6CAoPI7WzEFMeFz\ngoRJzIZ/waha/3PEvYq7GRxSl8TO0rtO+PcChK7WAAWeZzEK7kXFhZCB6PwkiBEZ\ne6CKk1apz2eQ8zCUE5gabZXkQ+ZtxlBXXT9Gh/DxMEBKbVitCZUrbkcr8iXib8eF\ncke0VsvhKnmDxJkuAiBQx73ojtyg8fE79dCVUfsh0soLb+fNsTsDp61IWshHGCnF\nUnby5aC78IzgiINAMHJffCYxURO8nIzmsX9oLRFHGZWr/CAIaIMNaQCaUJLB3svi\nBu6O3XWgmUC6X9jM4iNADB+xnTYAgdWjfXA3OqjocQKBgQDZDVASIOnPF0TH7PUs\n+33+aOi9TTytOr23k7m/3jmxmwbsq34OBche6juPPH/bLEqMe0bIInNiJvyr7KjP\nepHzxkXIktrrhqYbLLlnyHWGLeCD6Vcx+6lgSXPMNPWJcR+es/Ldc1WIoHDU3PpF\n5yr/MQgLT9b0UVRrbU7NQM5kPQKBgQDInR270t+NZJoMb0Hd/Gx1vTtYrOVdVt1t\nKWrSi69Yt7PCx3evqE7TwDZF7hFvh6uM8xC4WML0OSSs1mJ/KSPaGjUWXG3zSZJ5\nYacfvd82ofnsyuCCRKBGws//VDteyVbPkYYPM96xa5N3J2X7gGkc4h3bvGg74RBF\ndeu28Zh6qwKBgQCXNvkjyB5cEp/ukR02W3epuLj8uUSegyANNzPfghi7rX+jfs5x\nQoIX7iPUZJfGwBKn0HK9l5K/PN4ngNcSxRfNt8KCPB2cnNA4em4o6bVG58tU20nO\nHsAfvsyX5gVx3Yfj7wYyVdmvN+ejxNfvv19rLmOmTdc5mzevKBYQVSf1GQKBgEKb\n6EN0wMUxofR+/F+4cEqnigznW0CiluKn3dAKkS3j0MvbbuHkAEhOibauVRuy8ELc\ncbDDx/dPAd5hUFLoVf8UtIu4JMmio/+pbNQdNv/syA7XTbPzFURpaqZcUVonf6tr\nphdmIYrHLS9i5XmcKUptyXwsEm/PSpfFj34uuXIBAoGBAMHushJhCp02YNo3h5Sq\nqshxT4aRy0lCOqq2C0+GNfCyXaGueXHFbnQ927Cy6H0KNIX4Az7N0tgIx7mhkref\nfyrNsG0Ey9oP+D+jheGQckoO2vP7aXBtaYEI3qaHUmOJS5UXdW7sOCd3AgOnFksa\nfI7N57T+gVmkQ1bFo83DI1Gb\n-----END PRIVATE KEY-----\n",
+  "client_email": "pharmadomi@pharmadomi.iam.gserviceaccount.com",
+  "client_id": "109250729778902647443",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/pharmadomi%40pharmadomi.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
