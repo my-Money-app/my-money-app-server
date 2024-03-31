@@ -10,7 +10,7 @@ const nodemailer = require("nodemailer");
 
 const register = async (req, res) => {
   try {
-    const { name, email, pwd } = req.body;
+    const { name, email, pwd, rpwd } = req.body;
 
     if (name == "" || email == "" || pwd == "") {
       return res.status(401).json({ error: "all fields ae required" });
@@ -19,6 +19,9 @@ const register = async (req, res) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(402).json({ error: "Invalid email format" });
+    }
+    if (pwd !== rpwd) {
+      return res.status(406).json({ error: "please verify your password" });
     }
     const existingUser = await User.findOne({
       email,
@@ -42,6 +45,8 @@ const register = async (req, res) => {
       fullName: name,
       email: email,
       password: hashedPassword,
+      verificationCode: verificationCode,
+      verified: false,
     });
 
     // Save the user to the database
@@ -51,7 +56,7 @@ const register = async (req, res) => {
       .json({ message: "User registered successfully", userId: user._id });
 
     // Send a verification email
-    // sendVerifEmail(email, verificationCode);
+    sendVerifEmail(email, verificationCode, res);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
@@ -59,12 +64,12 @@ const register = async (req, res) => {
 };
 
 //send verification mail
-const sendVerifEmail = (email, verificationCode) => {
+const sendVerifEmail = (email, verificationCode, res) => {
   const transporter = nodemailer.createTransport({
     service: "Gmail", // Specify your email service provider (e.g., Gmail, Outlook, etc.)
     auth: {
       user: "saadliwissem88@gmail.com", // Your email address
-      pass: "nynw jmuj tspl lcge", // Your email password or app-specific password
+      pass: "xapi rijr xmas apln", // Your email password or app-specific password
     },
   });
 
@@ -72,13 +77,15 @@ const sendVerifEmail = (email, verificationCode) => {
     from: "saadliwissem88@gmail.com",
     to: email,
     subject: "Account Verification",
-    text: `Your verification code is: ${verificationCode}. Welcome to pharma-Domi `,
+    text: `Your verification code is: ${verificationCode}. Welcome to My Money `,
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       console.error(error);
-      res.status(500).json({ error: "Failed to send verification email" });
+      return res
+        .status(500)
+        .json({ error: "Failed to send verification email" });
     } else {
       console.log("Email sent: " + info.response);
       res.status(201).json({
@@ -186,12 +193,12 @@ const login = async (req, res) => {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
-    // Check if the user is verified
-    // if (!user.verified) {
-    //   return res
-    //     .status(403)
-    //     .json({ error: "Please verify your account", userId: user._id });
-    // }
+    //Check if the user is verified
+    if (!user.verified) {
+      return res
+        .status(403)
+        .json({ error: "Please verify your account", userId: user._id });
+    }
     // Generate a JSON Web Token (JWT) for authentication
     const token = jwt.sign(
       { userId: user._id },
@@ -201,6 +208,38 @@ const login = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const getUserById = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // Extract the token from the Authorization header
+    const token = authHeader.split(" ")[1];
+
+    // Verify and decode the token
+    const decoded = jwt.verify(token, "RyyTwyqhIytpayn9cYA1KpXbD2GV1h2q");
+
+    // Extract user ID from the decoded token
+    const userId = decoded.userId;
+
+    // Fetch user data from the database using the user ID
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Return user data as the response
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -291,4 +330,5 @@ module.exports = {
   changePassword,
   CodeVerification,
   resendCode,
+  getUserById,
 };

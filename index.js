@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const pharmacyRoutes = require("./routes/pharmacyRoutes");
+const outcomRoutes = require("./routes/outcomeRoutes");
 const medicineRoutes = require("./routes/medicineRoutes");
 const userRoutes = require("./routes/userRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
@@ -13,6 +14,7 @@ const bodyParser = require("body-parser");
 
 //cors
 const cors = require("cors");
+const Outcome = require("./models/Outcome");
 app.use(cors());
 // Middleware
 app.use(bodyParser.json({ limit: "50mb" }));
@@ -42,6 +44,7 @@ app.use("/medicines", medicineRoutes);
 app.use("/auth", userRoutes);
 app.use("/dashboard", dashboardRoutes);
 app.use("/deliveries", DeliveryRoutes);
+app.use("/outcomes", outcomRoutes);
 
 const port = process.env.PORT;
 app.listen(port, () => {

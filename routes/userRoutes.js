@@ -1,12 +1,13 @@
 const express = require("express");
 const {
-register,login, uploadProfileImage, getProfileImage, changePassword, CodeVerification, resendCode
+register,login, uploadProfileImage, getProfileImage, changePassword, CodeVerification, resendCode, getUserById
 } = require("../controllers/UserController");
 const router = express.Router();
 
 // Define routes for User model
 router.post("/register",register); // Create a new user
 router.post("/login",login); // login user
+router.get("/get-user",getUserById)
 router.post("/uploadProfileImage",uploadProfileImage); 
 router.get("/getProfileImage/:id",getProfileImage); 
 router.put("/changepwd",changePassword); 
