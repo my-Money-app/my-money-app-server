@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
+const { Schema } = mongoose;
 
 // Define the schema for Outcome
-const outcomeSchema = new mongoose.Schema({
+const outcomeSchema = new Schema({
   name: {
     type: String,
     required: true,
@@ -10,11 +11,13 @@ const outcomeSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  suggestions: [
-    {
-      type: Number,
-    },
-  ], // Array of numbers
+  suggestions: [{
+    type: Number,
+  }], // Array of numbers
+  owner: {
+    type: Schema.Types.ObjectId,
+    ref: 'User' // Reference to the User model
+  }
 });
 
 // Create model for Outcome using the defined schema

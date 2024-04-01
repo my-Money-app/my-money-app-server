@@ -2,13 +2,24 @@ const Outcome = require("../models/Outcome");
 
 const createOutcome = async (req, res) => {
   try {
-    const { name, value, suggestions } = req.body;
+    const name = req.body.outcome;
+    console.log(res.body);
+    const { userId } = req.params; // Assuming the user ID is passed in the request parameters
+
+    // Check if the name already exists for this user
+    const existingOutcome = await Outcome.findOne({ name, owner: userId });
+
+    // If the name already exists for this user, return an error response
+    if (existingOutcome) {
+      return res
+        .status(400)
+        .json({ error: "Outcome with this name already exists for this user" });
+    }
 
     // Create a new Outcome instance
     const newOutcome = new Outcome({
-      name,
-      value,
-      suggestions,
+      name: name,
+      owner: userId, // Assign the user ID to the owner field
     });
 
     // Save the new outcome to the database
@@ -23,12 +34,18 @@ const createOutcome = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 const getAllOutcomes = async (req, res) => {
   try {
-    const outcomes = await Outcome.find();
+    const { userId } = req.params; // Assuming userId is passed in the request params
+
+    // Query outcomes where the owner field matches the provided user ID
+    const outcomes = await Outcome.find({ owner: userId });
+
     if (!outcomes || outcomes.length === 0) {
-      return res.status(404).json({ error: "No outcomes found" });
+      return res.status(404).json({ error: "No outcomes found for this user" });
     }
+
     res.status(200).json(outcomes);
   } catch (error) {
     console.error(error);
@@ -43,7 +60,7 @@ const getOutcome = async (req, res) => {
     if (!outcome) {
       return res.status(404).json({ error: "Outcome not found" });
     }
-    res.status(200).json({ outcome });
+    res.status(200).json(outcome);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
@@ -85,7 +102,7 @@ const increaseOutcome = async (req, res) => {
     if (!outcome) {
       return res.status(404).json({ error: "Outcome not found" });
     }
-    outcome.value += increaseValue;
+    outcome.value += Number(increaseValue);
     await outcome.save();
     res.status(200).json({ message: "Outcome value increased successfully" });
   } catch (error) {
@@ -105,7 +122,7 @@ const decreaseOutcome = async (req, res) => {
     if (outcome.value - increaseValue < 0) {
       res.status(402).json({ error: "value can not be negative" });
     }
-    outcome.value -= increaseValue;
+    outcome.value -= Number(increaseValue);
     await outcome.save();
     res.status(200).json({ message: "Outcome value decreased successfully" });
   } catch (error) {

@@ -1,5 +1,5 @@
 const express = require("express");
-const { getAllUsers } = require("../controllers/DashboardingController");
+const { getOutcomesSum } = require("../controllers/DashboardingController");
 const router = express.Router();
-router.get("/users", getAllUsers); // Get all users
+router.get("/sum/:id", getOutcomesSum); 
 module.exports = router;

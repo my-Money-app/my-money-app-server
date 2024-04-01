@@ -1,22 +1,26 @@
-const User = require("../models/User");
+const Outcome = require("../models/Outcome");
 
-const getAllUsers = async (req, res) => {
+const getOutcomesSum = async (req, res) => {
   try {
-    // Retrieve all users from the database
-    const users = await User.find({}); // This will fetch all users in the collection
+    const { id } = req.params;
 
-    // Check if there are no users found
-    if (!users || users.length === 0) {
-      return res.status(404).json({ error: "No users found" });
+    // Query outcomes where the owner field matches the provided user ID
+    const outcomes = await Outcome.find({ owner: id });
+    if (!outcomes || outcomes.length === 0) {
+      return res.status(404).json({ error: "No outcomes found for this user" });
     }
 
-    // Return the list of users
-    res.status(200).json({ users });
+    // Calculate the sum of all outcome values
+    const sum = outcomes.reduce((total, outcome) => total + outcome.value, 0);
+
+    // Return only the sum in the response
+    res.status(200).json(sum);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 module.exports = {
-  getAllUsers,
+  getOutcomesSum,
 };
