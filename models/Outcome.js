@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-// Define the schema for Outcome
 const outcomeSchema = new Schema({
   name: {
     type: String,
@@ -13,14 +12,23 @@ const outcomeSchema = new Schema({
   },
   suggestions: [{
     type: Number,
-  }], // Array of numbers
+  }],
   owner: {
     type: Schema.Types.ObjectId,
-    ref: 'User' // Reference to the User model
+    ref: 'User'
+  },
+  updatedDate: {
+    type: Date,
+    default: Date.now, // Set default value to the current date
   }
 });
 
-// Create model for Outcome using the defined schema
+// Middleware to update the 'updatedDate' field before each update operation
+outcomeSchema.pre('update', function(next) {
+  this.update({}, { $set: { updatedDate: new Date() } });
+  next();
+});
+
 const Outcome = mongoose.model("Outcome", outcomeSchema);
 
 module.exports = Outcome;
