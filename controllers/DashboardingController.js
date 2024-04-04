@@ -145,10 +145,57 @@ const getOutcomesValuePerDay = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+// const getCustomOutcomesValuePerDay = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const startDate = req.body;
+//     console.log(startDate);
+//     const endDate = new Date(startDate);
+//     endDate.setDate(endDate.getDate() + 7); // Set end date 7 days after the start date
+
+//     const outcomes = await Outcome.find({ owner: id });
+
+//     if (!outcomes || outcomes.length === 0) {
+//       return res.status(404).json({ error: "No outcomes found for this user" });
+//     }
+
+//     let outcomeValuesPerDay = {};
+
+//     // Iterate through each outcome
+//     for (const outcome of outcomes) {
+//       let outcomeValues = {};
+
+//       // Initialize outcomeValues object with zero values for each day in the date range
+//       let currentDate = new Date(startDate);
+//       while (currentDate < endDate) {
+//         outcomeValues[currentDate.toISOString().split("T")[0]] = 0;
+//         currentDate.setDate(currentDate.getDate() + 1);
+//       }
+
+//       // Aggregate value history for the outcome per day within the date range
+//       for (const entry of outcome.valueHistory) {
+//         const entryDate = new Date(entry.date);
+//         if (entryDate >= new Date(startDate) && entryDate < endDate) {
+//           const day = entryDate.toISOString().split("T")[0];
+//           outcomeValues[day] += entry.value;
+//         }
+//       }
+
+//       // Add the outcome's values per day to the main object
+//       outcomeValuesPerDay[outcome.name] = outcomeValues;
+//     }
+
+//     res.status(200).json(outcomeValuesPerDay);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// };
 
 module.exports = {
   getOutcomesSum,
   getOutcomesValueForCurrentWeek,
   getOutcomesValueForCurrentMonth,
   getOutcomesValuePerDay,
+  // getCustomOutcomesValuePerDay,
 };
