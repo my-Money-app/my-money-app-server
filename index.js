@@ -1,12 +1,9 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
-const pharmacyRoutes = require("./routes/pharmacyRoutes");
 const outcomRoutes = require("./routes/outcomeRoutes");
-const medicineRoutes = require("./routes/medicineRoutes");
 const userRoutes = require("./routes/userRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
-const DeliveryRoutes = require("./routes/DeliveryRoutes");
 //const Delivery = require("./models/Delivery");
 const app = express();
 const cloudinary = require("./Cloudinary/cloudinary");
@@ -39,11 +36,8 @@ mongoose.connection.on("connected", () => {
   console.log("db connected ");
 });
 
-app.use("/pharmacies", pharmacyRoutes);
-app.use("/medicines", medicineRoutes);
 app.use("/auth", userRoutes);
 app.use("/dashboard", dashboardRoutes);
-app.use("/deliveries", DeliveryRoutes);
 app.use("/outcomes", outcomRoutes);
 
 const port = process.env.PORT;

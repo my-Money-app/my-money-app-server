@@ -98,11 +98,15 @@ const increaseOutcome = async (req, res) => {
   try {
     const { id } = req.params;
     const { increaseValue } = req.body;
+    console.log(increaseValue);
     const outcome = await Outcome.findById(id);
     if (!outcome) {
       return res.status(404).json({ error: "Outcome not found" });
     }
     outcome.value += Number(increaseValue);
+    console.log(outcome.value)
+    // Push the new value and current date to valueHistory
+    outcome.valueHistory.push({ value: increaseValue, date: new Date() });
     await outcome.save();
     res.status(200).json({ message: "Outcome value increased successfully" });
   } catch (error) {
@@ -111,25 +115,7 @@ const increaseOutcome = async (req, res) => {
   }
 };
 
-const decreaseOutcome = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { increaseValue } = req.body;
-    const outcome = await Outcome.findById(id);
-    if (!outcome) {
-      return res.status(404).json({ error: "Outcome not found" });
-    }
-    if (outcome.value - increaseValue < 0) {
-      res.status(402).json({ error: "value can not be negative" });
-    }
-    outcome.value -= Number(increaseValue);
-    await outcome.save();
-    res.status(200).json({ message: "Outcome value decreased successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
+
 
 const addSuggestion = async (req, res) => {
   try {
@@ -154,7 +140,6 @@ module.exports = {
   deleteOutcome,
   deleteSuggestion,
   increaseOutcome,
-  decreaseOutcome,
   addSuggestion,
   createOutcome,
 };

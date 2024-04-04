@@ -10,21 +10,29 @@ const outcomeSchema = new Schema({
     type: Number,
     default: 0,
   },
-  suggestions: [{
-    type: Number,
-  }],
+  suggestions: [
+    {
+      type: Number,
+    },
+  ],
   owner: {
     type: Schema.Types.ObjectId,
-    ref: 'User'
+    ref: "User",
   },
   updatedDate: {
     type: Date,
     default: Date.now, // Set default value to the current date
-  }
+  },
+  valueHistory: [
+    {
+      value: { type: Number, required: true },
+      date: { type: Date, default: Date.now },
+    },
+  ],
 });
 
 // Middleware to update the 'updatedDate' field before each update operation
-outcomeSchema.pre('update', function(next) {
+outcomeSchema.pre("update", function (next) {
   this.update({}, { $set: { updatedDate: new Date() } });
   next();
 });
