@@ -92,20 +92,14 @@ const getOutcomesValueForCurrentMonth = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-const getOutcomesValuePerDay = async (req, res) => {
+
+const getCustomOutcomesValuePerDay = async (req, res) => {
   try {
     const { id } = req.params;
-    const currentDate = new Date();
-    const startOfDay = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      currentDate.getDate()
-    );
-    const endOfDay = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      currentDate.getDate() + 1
-    );
+    const startDate = req.query.startDate;
+    console.log(startDate);
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + 7); // Set end date 7 days after the start date
 
     const outcomes = await Outcome.find({ owner: id });
 
@@ -119,17 +113,18 @@ const getOutcomesValuePerDay = async (req, res) => {
     for (const outcome of outcomes) {
       let outcomeValues = {};
 
-      // Initialize outcomeValues object with zero values for each day
-      for (let i = 0; i < 7; i++) {
-        const day = new Date(startOfDay);
-        day.setDate(day.getDate() + i);
-        outcomeValues[day.toISOString().split("T")[0]] = 0;
+      // Initialize outcomeValues object with zero values for each day in the date range
+      let currentDate = new Date(startDate);
+      console.log(currentDate);
+      while (currentDate < endDate) {
+        outcomeValues[currentDate.toISOString().split("T")[0]] = 0;
+        currentDate.setDate(currentDate.getDate() + 1);
       }
 
-      // Aggregate value history for the outcome per day
+      // Aggregate value history for the outcome per day within the date range
       for (const entry of outcome.valueHistory) {
         const entryDate = new Date(entry.date);
-        if (entryDate >= startOfDay && entryDate < endOfDay) {
+        if (entryDate >= new Date(startDate) && entryDate < endDate) {
           const day = entryDate.toISOString().split("T")[0];
           outcomeValues[day] += entry.value;
         }
@@ -145,57 +140,52 @@ const getOutcomesValuePerDay = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-// const getCustomOutcomesValuePerDay = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const startDate = req.body;
-//     console.log(startDate);
-//     const endDate = new Date(startDate);
-//     endDate.setDate(endDate.getDate() + 7); // Set end date 7 days after the start date
 
-//     const outcomes = await Outcome.find({ owner: id });
+// outcomes for current month
+const getOutcomesForCurrentMonth = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const currentDate = new Date();
+    const startOfMonth = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      1
+    );
+    const endOfMonth = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth() + 1,
+      0
+    );
 
-//     if (!outcomes || outcomes.length === 0) {
-//       return res.status(404).json({ error: "No outcomes found for this user" });
-//     }
+    const outcomes = await Outcome.find({ owner: id });
 
-//     let outcomeValuesPerDay = {};
+    if (!outcomes || outcomes.length === 0) {
+      return res.status(404).json({ error: "No outcomes found for this user" });
+    }
 
-//     // Iterate through each outcome
-//     for (const outcome of outcomes) {
-//       let outcomeValues = {};
+    let outcomesData = [];
 
-//       // Initialize outcomeValues object with zero values for each day in the date range
-//       let currentDate = new Date(startDate);
-//       while (currentDate < endDate) {
-//         outcomeValues[currentDate.toISOString().split("T")[0]] = 0;
-//         currentDate.setDate(currentDate.getDate() + 1);
-//       }
+    for (const outcome of outcomes) {
+      let totalValueForOutcome = 0;
+      for (const entry of outcome.valueHistory) {
+        if (entry.date >= startOfMonth && entry.date <= endOfMonth) {
+          totalValueForOutcome += entry.value;
+        }
+      }
+      outcomesData.push({ name: outcome.name, value: totalValueForOutcome });
+    }
 
-//       // Aggregate value history for the outcome per day within the date range
-//       for (const entry of outcome.valueHistory) {
-//         const entryDate = new Date(entry.date);
-//         if (entryDate >= new Date(startDate) && entryDate < endDate) {
-//           const day = entryDate.toISOString().split("T")[0];
-//           outcomeValues[day] += entry.value;
-//         }
-//       }
-
-//       // Add the outcome's values per day to the main object
-//       outcomeValuesPerDay[outcome.name] = outcomeValues;
-//     }
-
-//     res.status(200).json(outcomeValuesPerDay);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// };
+    res.status(200).json(outcomesData);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 
 module.exports = {
   getOutcomesSum,
   getOutcomesValueForCurrentWeek,
   getOutcomesValueForCurrentMonth,
-  getOutcomesValuePerDay,
-  // getCustomOutcomesValuePerDay,
+  getCustomOutcomesValuePerDay,
+  getOutcomesForCurrentMonth
 };
