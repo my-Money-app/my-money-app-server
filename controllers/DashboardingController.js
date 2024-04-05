@@ -97,7 +97,6 @@ const getCustomOutcomesValuePerDay = async (req, res) => {
   try {
     const { id } = req.params;
     const startDate = req.query.startDate;
-    console.log(startDate);
     const endDate = new Date(startDate);
     endDate.setDate(endDate.getDate() + 7); // Set end date 7 days after the start date
 
@@ -115,7 +114,6 @@ const getCustomOutcomesValuePerDay = async (req, res) => {
 
       // Initialize outcomeValues object with zero values for each day in the date range
       let currentDate = new Date(startDate);
-      console.log(currentDate);
       while (currentDate < endDate) {
         outcomeValues[currentDate.toISOString().split("T")[0]] = 0;
         currentDate.setDate(currentDate.getDate() + 1);
@@ -182,10 +180,51 @@ const getOutcomesForCurrentMonth = async (req, res) => {
   }
 };
 
+const getAverageSpendingPerDay = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { startDate, endDate } = req.query;
+
+    // Convert start and end dates to Date objects
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    // Query outcomes where the owner field matches the provided user ID
+    const outcomes = await Outcome.find({ owner: id });
+
+    if (!outcomes || outcomes.length === 0) {
+      return res.status(404).json({ error: "No outcomes found for this user" });
+    }
+
+    let totalSpending = 0;
+    let daysCount = 0;
+
+    // Iterate through outcomes and calculate total spending and days count
+    for (const outcome of outcomes) {
+      for (const entry of outcome.valueHistory) {
+        const entryDate = new Date(entry.date);
+        if (entryDate >= start && entryDate <= end) {
+          totalSpending += entry.value;
+          daysCount++;
+        }
+      }
+    }
+
+    // Calculate the average spending per day
+    const averageSpendingPerDay = totalSpending / daysCount;
+
+    res.status(200).json(averageSpendingPerDay);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 module.exports = {
   getOutcomesSum,
   getOutcomesValueForCurrentWeek,
   getOutcomesValueForCurrentMonth,
   getCustomOutcomesValuePerDay,
-  getOutcomesForCurrentMonth
+  getOutcomesForCurrentMonth,
+  getAverageSpendingPerDay,
 };
