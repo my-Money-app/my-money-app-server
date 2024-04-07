@@ -23,6 +23,7 @@ const outcomeSchema = new Schema({
     type: Date,
     default: Date.now, // Set default value to the current date
   },
+  img: { type: String },
   valueHistory: [
     {
       value: { type: Number, required: true },
