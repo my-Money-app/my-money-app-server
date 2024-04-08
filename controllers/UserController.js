@@ -5,6 +5,8 @@ const { validationResult } = require("express-validator");
 const router = express.Router();
 const User = require("../models/User");
 const nodemailer = require("nodemailer");
+const cloudinary = require("cloudinary").v2;
+
 
 //send sms
 
@@ -245,25 +247,28 @@ const getUserById = async (req, res) => {
 
 const uploadProfileImage = async (req, res) => {
   try {
-    const userId = req.body.userId;
-    const imagePath = req.body.imagePath;
-    // Find the user by ID and update the img field with the image path
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { img: imagePath },
-      { new: true }
-    );
+    const image = req.body.image; // Get image data from request body
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    // Upload image to Cloudinary
+    const uploadedImage = await cloudinary.uploader.upload(image, {
+      folder: "profile_images", // Specify folder in Cloudinary to store images
+      allowed_formats: ["jpg", "jpeg", "png"], // Allow only specific image formats
+    });
 
-    return res
+    // Extract image URL from Cloudinary response
+    const imageUrl = uploadedImage.secure_url;
+
+    // Update user's profile image URL in the database
+    const userId = req.body.id; // Assuming you have authentication middleware that adds the user object to the request
+    const user = await User.findByIdAndUpdate(userId, { img: imageUrl });
+
+    // Send success response with updated user object
+    res
       .status(200)
-      .json({ message: "Profile image updated successfully", user });
+      .json({ message: "Profile image uploaded successfully", user });
   } catch (error) {
     console.error("Error uploading profile image:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 const getProfileImage = async (req, res) => {
