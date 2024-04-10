@@ -7,7 +7,6 @@ const User = require("../models/User");
 const nodemailer = require("nodemailer");
 const cloudinary = require("cloudinary").v2;
 
-
 //send sms
 
 const register = async (req, res) => {
@@ -248,10 +247,12 @@ const getUserById = async (req, res) => {
 const uploadProfileImage = async (req, res) => {
   try {
     const image = req.body.image; // Get image data from request body
+    const userId = req.body.id; // Get user ID from request body
 
-    // Upload image to Cloudinary
+    // Upload profile image to Cloudinary with user ID as part of the file name
     const uploadedImage = await cloudinary.uploader.upload(image, {
-      folder: "profile_images", // Specify folder in Cloudinary to store images
+      public_id: `profile_images/${userId}`, // Use user ID as part of the file name
+      overwrite: true, // Allow overwriting existing image with same file name
       allowed_formats: ["jpg", "jpeg", "png"], // Allow only specific image formats
     });
 
@@ -259,41 +260,20 @@ const uploadProfileImage = async (req, res) => {
     const imageUrl = uploadedImage.secure_url;
 
     // Update user's profile image URL in the database
-    const userId = req.body.id; // Assuming you have authentication middleware that adds the user object to the request
-    const user = await User.findByIdAndUpdate(userId, { img: imageUrl });
+    await User.findByIdAndUpdate(userId, { img: imageUrl });
 
     // Send success response with updated user object
-    res
-      .status(200)
-      .json({ message: "Profile image uploaded successfully", user });
+    res.status(200).json({ message: "Profile image uploaded successfully" });
   } catch (error) {
     console.error("Error uploading profile image:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
-const getProfileImage = async (req, res) => {
-  try {
-    const userId = req.params.id;
 
-    // Find the user by ID and retrieve the img field
-    const user = await User.findById(userId);
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    const imagePath = user.img; // Assuming the path to the image is stored in the 'img' field
-
-    return res.status(200).json({ imagePath });
-  } catch (error) {
-    console.error("Error fetching profile image:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
 const changePassword = async (req, res) => {
   try {
     const newPassword = req.body.newpwd;
-
     const userId = req.body.userId;
     const currentPassword = req.body.currentpwd;
     // Find the user by ID
@@ -331,7 +311,6 @@ module.exports = {
   register,
   login,
   uploadProfileImage,
-  getProfileImage,
   changePassword,
   CodeVerification,
   resendCode,

@@ -211,7 +211,8 @@ const getAverageSpendingPerDay = async (req, res) => {
     }
 
     // Calculate the average spending per day
-    const averageSpendingPerDay = totalSpending / daysCount;
+    const averageSpendingPerDay =
+      daysCount === 0 ? 0 : totalSpending / daysCount;
 
     res.status(200).json(averageSpendingPerDay);
   } catch (error) {

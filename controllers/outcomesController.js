@@ -98,13 +98,17 @@ const increaseOutcome = async (req, res) => {
   try {
     const { id } = req.params;
     const { increaseValue } = req.body;
+    if (!increaseValue) {
+      return res.status(395).json({ error: "enter a valid value" });
+    }
     console.log(increaseValue);
     const outcome = await Outcome.findById(id);
+
     if (!outcome) {
       return res.status(404).json({ error: "Outcome not found" });
     }
     outcome.value += Number(increaseValue);
-    console.log(outcome.value)
+    console.log(outcome.value);
     // Push the new value and current date to valueHistory
     outcome.valueHistory.push({ value: increaseValue, date: new Date() });
     await outcome.save();
@@ -115,18 +119,27 @@ const increaseOutcome = async (req, res) => {
   }
 };
 
-
-
 const addSuggestion = async (req, res) => {
   try {
     const { id } = req.params;
     const { value } = req.body;
+
+    // Find the outcome by ID
     const outcome = await Outcome.findById(id);
+
     if (!outcome) {
       return res.status(404).json({ error: "Outcome not found" });
     }
+
+    // Check if the value already exists in the suggestions array
+    if (outcome.suggestions.includes(value)) {
+      return res.status(400).json({ error: "Suggestion already exists" });
+    }
+
+    // Add the value to the suggestions array
     outcome.suggestions.push(value);
     await outcome.save();
+
     res.status(200).json({ message: "Suggestion added successfully" });
   } catch (error) {
     console.error(error);
