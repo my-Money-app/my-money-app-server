@@ -70,7 +70,7 @@ const sendVerifEmail = (email, verificationCode, res) => {
     service: "Gmail", // Specify your email service provider (e.g., Gmail, Outlook, etc.)
     auth: {
       user: "saadliwissem88@gmail.com", // Your email address
-      pass: "xapi rijr xmas apln", // Your email password or app-specific password
+      pass: process.env.MAIL_SENDER_PASS, // Your email password or app-specific password
     },
   });
 
@@ -269,7 +269,6 @@ const uploadProfileImage = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
 
 const changePassword = async (req, res) => {
   try {

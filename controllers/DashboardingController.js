@@ -96,9 +96,11 @@ const getOutcomesValueForCurrentMonth = async (req, res) => {
 const getCustomOutcomesValuePerDay = async (req, res) => {
   try {
     const { id } = req.params;
-    const startDate = req.query.startDate;
-    const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + 7); // Set end date 7 days after the start date
+    const endDateInput = req.query.startDate; // Get the date from the query and treat it as the end date
+    const endDate = new Date(endDateInput);
+    
+    const startDate = new Date(endDateInput); // Copy the end date
+    startDate.setDate(startDate.getDate() - 7); // Subtract 7 days to set the start date
 
     const outcomes = await Outcome.find({ owner: id });
 
@@ -114,7 +116,7 @@ const getCustomOutcomesValuePerDay = async (req, res) => {
 
       // Initialize outcomeValues object with zero values for each day in the date range
       let currentDate = new Date(startDate);
-      while (currentDate < endDate) {
+      while (currentDate <= endDate) {
         outcomeValues[currentDate.toISOString().split("T")[0]] = 0;
         currentDate.setDate(currentDate.getDate() + 1);
       }
@@ -122,7 +124,7 @@ const getCustomOutcomesValuePerDay = async (req, res) => {
       // Aggregate value history for the outcome per day within the date range
       for (const entry of outcome.valueHistory) {
         const entryDate = new Date(entry.date);
-        if (entryDate >= new Date(startDate) && entryDate < endDate) {
+        if (entryDate >= startDate && entryDate <= endDate) {
           const day = entryDate.toISOString().split("T")[0];
           outcomeValues[day] += entry.value;
         }
@@ -138,6 +140,7 @@ const getCustomOutcomesValuePerDay = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 
 // outcomes for current month
 const getOutcomesForCurrentMonth = async (req, res) => {

@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const Outcome = require("../models/Outcome");
 
 const createOutcome = async (req, res) => {
@@ -68,6 +69,7 @@ const getOutcome = async (req, res) => {
 };
 
 const deleteOutcome = async (req, res) => {
+  console.log("fuck")
   try {
     const { id } = req.params;
     await Outcome.findByIdAndDelete(id);
@@ -77,6 +79,42 @@ const deleteOutcome = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+// Assuming you're changing the method to POST for handling deletions.
+const deleteOutcomes = async (req, res) => {
+  console.log("Received delete request");
+  try {
+    const { names } = req.body; // Expecting an array of names
+    const { id } = req.params; // User ID from URL parameters
+
+    if (!Array.isArray(names) || names.length === 0) {
+      return res.status(400).json({ error: "No names provided to delete" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: "Invalid user ID" });
+    }
+
+    const result = await Outcome.deleteMany({
+      name: { $in: names },
+      owner: id,
+    });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({
+        message: "No outcomes found with the provided names for this user",
+      });
+    }
+
+    res.status(200).json({
+      message: `Successfully deleted ${result.deletedCount} outcomes`,
+    });
+  } catch (error) {
+    console.error("Error deleting outcomes:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 
 const deleteSuggestion = async (req, res) => {
   try {
@@ -155,4 +193,5 @@ module.exports = {
   increaseOutcome,
   addSuggestion,
   createOutcome,
+  deleteOutcomes,
 };
