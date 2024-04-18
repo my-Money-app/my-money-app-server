@@ -26,10 +26,19 @@ const getOutcomesValueForCurrentWeek = async (req, res) => {
     const { id } = req.params;
     const currentDate = new Date();
     const startOfWeek = new Date(currentDate);
-    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay()); // Set to first day of the week
-
     const endOfWeek = new Date(currentDate);
-    endOfWeek.setDate(endOfWeek.getDate() + (6 - endOfWeek.getDay())); // Set to last day of the week
+
+    // Calculate the last Sunday
+    if (startOfWeek.getDay() !== 0) {
+      // If today is not Sunday
+      startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+    } else {
+      // If today is Sunday
+      startOfWeek.setDate(startOfWeek.getDate() - 7);
+    }
+
+    // Calculate the next Sunday
+    endOfWeek.setDate(startOfWeek.getDate() + 7);
 
     const outcomes = await Outcome.find({ owner: id });
 
@@ -39,10 +48,12 @@ const getOutcomesValueForCurrentWeek = async (req, res) => {
 
     let totalValueForWeek = 0;
 
-    // Aggregate value history for each outcome within the current week
+    // Aggregate value history for each outcome within the week from last Sunday to next Sunday
     for (const outcome of outcomes) {
       for (const entry of outcome.valueHistory) {
-        if (entry.date >= startOfWeek && entry.date <= endOfWeek) {
+        const entryDate = new Date(entry.date);
+        if (entryDate >= startOfWeek && entryDate < endOfWeek) {
+          // Ensure to include up to just before the next Sunday
           totalValueForWeek += entry.value;
         }
       }
@@ -98,7 +109,7 @@ const getCustomOutcomesValuePerDay = async (req, res) => {
     const { id } = req.params;
     const endDateInput = req.query.startDate; // Get the date from the query and treat it as the end date
     const endDate = new Date(endDateInput);
-    
+
     const startDate = new Date(endDateInput); // Copy the end date
     startDate.setDate(startDate.getDate() - 7); // Subtract 7 days to set the start date
 
@@ -140,7 +151,6 @@ const getCustomOutcomesValuePerDay = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
 
 // outcomes for current month
 const getOutcomesForCurrentMonth = async (req, res) => {
@@ -200,24 +210,26 @@ const getAverageSpendingPerDay = async (req, res) => {
     }
 
     let totalSpending = 0;
-    let daysCount = 0;
+    const uniqueDays = new Set(); // Use a set to store unique dates
 
-    // Iterate through outcomes and calculate total spending and days count
+    // Iterate through outcomes and calculate total spending and count unique days
     for (const outcome of outcomes) {
       for (const entry of outcome.valueHistory) {
         const entryDate = new Date(entry.date);
+        // Format the date to yyyy-mm-dd to ensure comparison is by day and not time
+        const formattedDate = entryDate.toISOString().split("T")[0];
         if (entryDate >= start && entryDate <= end) {
           totalSpending += entry.value;
-          daysCount++;
+          uniqueDays.add(formattedDate); // Add to set which only stores unique values
         }
       }
     }
 
     // Calculate the average spending per day
     const averageSpendingPerDay =
-      daysCount === 0 ? 0 : totalSpending / daysCount;
+      uniqueDays.size === 0 ? 0 : totalSpending / uniqueDays.size;
 
-    res.status(200).json(averageSpendingPerDay);
+    res.status(200).json( averageSpendingPerDay );
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
