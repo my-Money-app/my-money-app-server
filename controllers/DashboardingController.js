@@ -1,5 +1,5 @@
-const moment = require("moment");
 const Outcome = require("../models/Outcome");
+const User = require("../models/User");
 
 const getOutcomesSum = async (req, res) => {
   try {
@@ -229,9 +229,79 @@ const getAverageSpendingPerDay = async (req, res) => {
     const averageSpendingPerDay =
       uniqueDays.size === 0 ? 0 : totalSpending / uniqueDays.size;
 
-    res.status(200).json( averageSpendingPerDay );
+    res.status(200).json(averageSpendingPerDay);
   } catch (error) {
     console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const getUserBalance = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Query the user model to find the user by ID
+    const user = await User.findById(id);
+
+    // Check if the user exists
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    // Extract the balance from the user object
+    const balance = user.balance;
+
+    // Return the balance in the response
+    res.status(200).json(balance);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+// increase balance
+const increaseBalance = async (req, res) => {
+  try {
+    const { id } = req.params; // User ID
+    const { amount } = req.body; // Amount to increase
+
+    // Find the user by ID and update the balance
+    const user = await User.findByIdAndUpdate(
+      id,
+      { $inc: { balance: amount } },
+      { new: true }
+    );
+
+    // Check if the user exists
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({ balance: user.balance });
+  } catch (error) {
+    console.error("Error increasing balance:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+// decrease balance
+const decreaseBalance = async (req, res) => {
+  try {
+    const { id } = req.params; // User ID
+    const { amount } = req.body; // Amount to decrease
+
+    // Find the user by ID and update the balance
+    const user = await User.findByIdAndUpdate(
+      id,
+      { $inc: { balance: -amount } },
+      { new: true }
+    );
+
+    // Check if the user exists
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({ balance: user.balance });
+  } catch (error) {
+    console.error("Error decreasing balance:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -243,4 +313,7 @@ module.exports = {
   getCustomOutcomesValuePerDay,
   getOutcomesForCurrentMonth,
   getAverageSpendingPerDay,
+  getUserBalance,
+  increaseBalance,
+  decreaseBalance,
 };

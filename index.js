@@ -12,6 +12,7 @@ const bodyParser = require("body-parser");
 //cors
 const cors = require("cors");
 const Outcome = require("./models/Outcome");
+const User = require("./models/User");
 app.use(cors());
 // Middleware
 app.use(bodyParser.json({ limit: "50mb" }));

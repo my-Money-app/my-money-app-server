@@ -1,5 +1,6 @@
 const { default: mongoose } = require("mongoose");
 const Outcome = require("../models/Outcome");
+const User = require("../models/User");
 
 const createOutcome = async (req, res) => {
   try {
@@ -136,26 +137,43 @@ const increaseOutcome = async (req, res) => {
   try {
     const { id } = req.params;
     const { increaseValue } = req.body;
-    if (!increaseValue) {
-      return res.status(395).json({ error: "enter a valid value" });
+
+    // Validate increaseValue
+    if (!increaseValue || isNaN(Number(increaseValue))) {
+      return res.status(400).json({ error: "Please enter a valid value" });
     }
-    console.log(increaseValue);
+
     const outcome = await Outcome.findById(id);
 
     if (!outcome) {
       return res.status(404).json({ error: "Outcome not found" });
     }
+
+    // Increase outcome value
     outcome.value += Number(increaseValue);
-    console.log(outcome.value);
+
     // Push the new value and current date to valueHistory
     outcome.valueHistory.push({ value: increaseValue, date: new Date() });
+
+    // Save the outcome changes
     await outcome.save();
+
+    // Retrieve the user associated with the outcome
+    const user = await User.findById(outcome.owner);
+
+    // Increase the user's balance
+    user.balance -= Number(increaseValue);
+
+    // Save the user changes
+    await user.save();
+
     res.status(200).json({ message: "Outcome value increased successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 
 const addSuggestion = async (req, res) => {
   try {
